@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git remote add:*)",
+      "Bash(git push:*)",
+      "Bash(git -C \"c:\\\\Users\\\\Administrator\\\\PycharmProjects\\\\utilitiesWebGui\" log --oneline)",
+      "Bash(dir:*)",
+      "Bash(.venv/Scripts/pip install:*)",
+      "Bash(.venv/Scripts/python -m pytest:*)"
+    ]
+  }
+}

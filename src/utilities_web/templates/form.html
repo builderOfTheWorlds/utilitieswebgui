@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block content %}
+{% if enable_examples and example_files %}
+<div class="mb-4">
+    <h5>Example Files</h5>
+    <div class="d-flex flex-wrap gap-2">
+        {% for fname in example_files %}
+        <a href="{{ url_for('download_example', filename=fname) }}" class="btn btn-outline-secondary btn-sm">
+            Download {{ fname }}
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<form method="POST" enctype="multipart/form-data" onsubmit="showProgress()">
+    {% for inp in inputs %}
+    <div class="mb-3">
+        <label class="form-label" for="field-{{ inp.name }}">
+            {{ inp.label }}
+            {% if inp.required %}<span class="text-danger">*</span>{% endif %}
+        </label>
+
+        {% if inp.input_type == "file" %}
+        <input type="file" class="form-control" id="field-{{ inp.name }}" name="{{ inp.name }}"
+            {% if inp.required %}required{% endif %}
+            {% if inp.accept %}accept="{{ inp.accept }}"{% endif %}>
+            {% if inp.max_size_mb %}
+            <div class="form-text">Max size: {{ inp.max_size_mb }} MB</div>
+            {% endif %}
+
+        {% elif inp.input_type == "text" and inp.multiline %}
+        <textarea class="form-control" id="field-{{ inp.name }}" name="{{ inp.name }}" rows="4"
+            {% if inp.required %}required{% endif %}
+            {% if inp.placeholder %}placeholder="{{ inp.placeholder }}"{% endif %}
+        >{{ inp.default or '' }}</textarea>
+
+        {% elif inp.input_type == "text" %}
+        <input type="text" class="form-control" id="field-{{ inp.name }}" name="{{ inp.name }}"
+            {% if inp.required %}required{% endif %}
+            {% if inp.default %}value="{{ inp.default }}"{% endif %}
+            {% if inp.placeholder %}placeholder="{{ inp.placeholder }}"{% endif %}>
+
+        {% elif inp.input_type == "number" %}
+        <input type="number" class="form-control" id="field-{{ inp.name }}" name="{{ inp.name }}"
+            {% if inp.required %}required{% endif %}
+            {% if inp.default is not none %}value="{{ inp.default }}"{% endif %}
+            {% if inp.min_val is not none %}min="{{ inp.min_val }}"{% endif %}
+            {% if inp.max_val is not none %}max="{{ inp.max_val }}"{% endif %}
+            {% if inp.step is not none %}step="{{ inp.step }}"{% endif %}>
+
+        {% elif inp.input_type == "select" %}
+        <select class="form-select" id="field-{{ inp.name }}" name="{{ inp.name }}"
+            {% if inp.required %}required{% endif %}>
+            <option value="">-- Select --</option>
+            {% for value, label in inp.choices %}
+            <option value="{{ value }}" {% if inp.default == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+
+        {% elif inp.input_type == "checkbox" %}
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="field-{{ inp.name }}" name="{{ inp.name }}" value="true"
+                {% if inp.default %}checked{% endif %}>
+            <label class="form-check-label" for="field-{{ inp.name }}">{{ inp.label }}</label>
+        </div>
+
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    <button type="submit" class="btn btn-primary" id="submit-btn">Start</button>
+</form>
+
+<div id="progress-indicator" class="mt-3" style="display:none;">
+    <div class="progress">
+        <div class="progress-bar progress-bar-striped progress-bar-animated" style="width:100%">
+            Processing...
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+{% if result.status == "success" %}
+<div class="alert alert-success">
+    <h5>{{ success_message }}</h5>
+    {% if result.output %}
+    <pre class="mt-3 mb-0">{{ result.output }}</pre>
+    {% endif %}
+</div>
+{% else %}
+<div class="alert alert-danger">
+    <h5>An error occurred</h5>
+    {% if result.output %}
+    <pre class="mt-3 mb-0">{{ result.output }}</pre>
+    {% endif %}
+</div>
+{% endif %}
+
+<a href="{{ url_for('index') }}" class="btn btn-primary mt-3">Back</a>
+{% endblock %}

@@ -1,0 +1,17 @@
+README.md
+pyproject.toml
+src/utilities_web/__init__.py
+src/utilities_web/app_factory.py
+src/utilities_web/input_types.py
+src/utilities_web/processor.py
+src/utilities_web.egg-info/PKG-INFO
+src/utilities_web.egg-info/SOURCES.txt
+src/utilities_web.egg-info/dependency_links.txt
+src/utilities_web.egg-info/requires.txt
+src/utilities_web.egg-info/top_level.txt
+src/utilities_web/templates/base.html
+src/utilities_web/templates/form.html
+src/utilities_web/templates/result.html
+tests/test_app_factory.py
+tests/test_input_types.py
+tests/test_processor.py
