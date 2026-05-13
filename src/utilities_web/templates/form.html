@@ -24,7 +24,8 @@
         {% if inp.input_type == "file" %}
         <input type="file" class="form-control" id="field-{{ inp.name }}" name="{{ inp.name }}"
             {% if inp.required %}required{% endif %}
-            {% if inp.accept %}accept="{{ inp.accept }}"{% endif %}>
+            {% if inp.accept %}accept="{{ inp.accept }}"{% endif %}
+            {% if inp.multiple %}multiple{% endif %}>
             {% if inp.max_size_mb %}
             <div class="form-text">Max size: {{ inp.max_size_mb }} MB</div>
             {% endif %}

@@ -18,6 +18,7 @@ def create_app(
     process_command: Optional[List[str]] = None,
     process_handler: Optional[Callable[..., Any]] = None,
     upload_folder: str = "uploaded_files",
+    output_folder: Optional[str] = None,
     example_folder: Optional[str] = None,
     enable_examples: bool = False,
     custom_css: Optional[str] = None,
@@ -34,6 +35,9 @@ def create_app(
         process_command: Subprocess command list with ``{field}`` placeholders.
         process_handler: Python callable that receives form data as kwargs.
         upload_folder: Directory where uploaded files are saved.
+        output_folder: Directory from which result files are served for download.
+            When set, result data may include a ``download_file`` key (basename)
+            to trigger a download button on the result page.
         example_folder: Directory containing example files for download.
         enable_examples: Whether to show example download buttons.
         custom_css: Extra CSS injected into the page ``<style>`` tag.
@@ -68,14 +72,27 @@ def create_app(
 
             for inp in inputs:
                 if isinstance(inp, FileInput):
-                    file = request.files.get(inp.name)
-                    if file and file.filename:
-                        path = os.path.join(upload_folder, file.filename)
-                        file.save(path)
-                        form_data[inp.name] = path
-                    elif inp.required:
-                        flash(f"Missing required file: {inp.label}", "error")
-                        return redirect(url_for("index"))
+                    if inp.multiple:
+                        files = request.files.getlist(inp.name)
+                        saved = [os.path.join(upload_folder, f.filename)
+                                 for f in files if f and f.filename]
+                        for f, path in zip(
+                            [x for x in files if x and x.filename], saved
+                        ):
+                            f.save(path)
+                        if not saved and inp.required:
+                            flash(f"Missing required file: {inp.label}", "error")
+                            return redirect(url_for("index"))
+                        form_data[inp.name] = saved
+                    else:
+                        file = request.files.get(inp.name)
+                        if file and file.filename:
+                            path = os.path.join(upload_folder, file.filename)
+                            file.save(path)
+                            form_data[inp.name] = path
+                        elif inp.required:
+                            flash(f"Missing required file: {inp.label}", "error")
+                            return redirect(url_for("index"))
                 elif isinstance(inp, CheckboxInput):
                     form_data[inp.name] = inp.name in request.form
                 else:
@@ -122,6 +139,19 @@ def create_app(
             if os.path.exists(os.path.join(example_folder, filename)):
                 return send_from_directory(example_folder, filename, as_attachment=True)
             flash(f"Example file '{filename}' not found.", "error")
+            return redirect(url_for("index"))
+
+    if output_folder:
+        _output_folder = output_folder
+
+        @app.route("/download-result/<filename>")
+        def download_result(filename):
+            filepath = os.path.join(_output_folder, filename)
+            if os.path.exists(filepath):
+                return send_from_directory(
+                    os.path.abspath(_output_folder), filename, as_attachment=True
+                )
+            flash(f"Result file '{filename}' not found.", "error")
             return redirect(url_for("index"))
 
     return app

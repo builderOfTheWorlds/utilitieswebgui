@@ -14,12 +14,14 @@ class FileInput:
         required: Whether the field is required.
         accept: Comma-separated file type filter (e.g. ".csv,.json").
         max_size_mb: Maximum file size in megabytes.
+        multiple: Whether to allow selecting multiple files at once.
     """
     name: str
     label: Optional[str] = None
     required: bool = True
     accept: Optional[str] = None
     max_size_mb: Optional[float] = None
+    multiple: bool = False
 
     def __post_init__(self):
         if self.label is None:
